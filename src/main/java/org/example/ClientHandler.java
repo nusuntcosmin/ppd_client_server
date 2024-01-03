@@ -22,7 +22,7 @@ public class ClientHandler implements Runnable {
         ) {
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
-                System.out.println("Received from client: " + inputLine);
+                System.out.println("Received from client: " + clientSocket + inputLine);
 
                 out.println("Server received your data: " + inputLine);
             }

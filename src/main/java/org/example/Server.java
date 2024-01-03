@@ -1,6 +1,7 @@
 package org.example;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -25,7 +26,8 @@ public class Server {
         while (true) {
             try {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected: " + clientSocket);
+                InetAddress clientAddress = clientSocket.getInetAddress();
+                System.out.println("Client connected: " + clientAddress + clientSocket);
 
                 // Handle each client connection in a separate thread
                 threadPool.execute(new ClientHandler(clientSocket));
