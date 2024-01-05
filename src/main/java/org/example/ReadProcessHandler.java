@@ -13,7 +13,7 @@ public class ReadProcessHandler implements Runnable {
 
     @Override
     public void run() {
-        queue.enqueue(new ParticipantEntry(Integer.parseInt(pair.split(" ")[0]), Integer.parseInt(pair.split(" ")[0]), socket));
+        queue.enqueue(new ParticipantEntry(Integer.parseInt(pair.split(" ")[0]), Integer.parseInt(pair.split(" ")[1]), socket));
     }
     
 }
