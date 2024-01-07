@@ -18,12 +18,14 @@ public class Client {
 
         try (Socket socket = new Socket(serverAddress, port)) {
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            sendResultsToServer(out, timeIntervalInSeconds);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            sendResultsToServer(in,out, timeIntervalInSeconds);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    private void sendResultsToServer(PrintWriter out, int timeIntervalInSeconds) {
+
+    private void sendResultsToServer(BufferedReader in,PrintWriter out, int timeIntervalInSeconds) {
         try {
 
             String line;
@@ -48,6 +50,18 @@ public class Client {
 
                 fileReader.close();
             }
+            System.out.println("Clientul "+this.clientNumber+" a cerut clasamentul final");
+            out.println("Clasament final");
+            String[] clasament = new String[1000];
+            Integer lineNumber = 0;
+            System.out.println("Clientul "+this.clientNumber+" citeste clasamentul final");
+            while((line=in.readLine()) !=null) {
+                if(line.equals("END")) break;
+                clasament[lineNumber]=line;
+                lineNumber++;
+            }
+            System.out.println(lineNumber);
+            System.out.println("Clientul "+this.clientNumber+" a primit "+lineNumber+" participanti");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -17,11 +18,13 @@ public class Server {
     private final Thread[] threads;
     private final RankingList resultsList;
     private final int consumerThreadsNo;
+    private boolean success;
 
     public Server(int port, int poolSize,int consumerThreadsNo,SyncronizedQueue queue, Thread[] threads, RankingList resultsList) {
         this.threads=threads;
         this.resultsList=resultsList;
         this.queue=queue;
+        this.success=false;
         this.consumerThreadsNo=consumerThreadsNo;
         try {
             serverSocket = new ServerSocket(port);
@@ -31,6 +34,21 @@ public class Server {
         }
     }
 
+    public CompletableFuture<List<ParticipantEntry>> calculateRankingsAsync() throws InterruptedException {
+        CompletableFuture<List<ParticipantEntry>> future = new CompletableFuture<>();        
+            List<ParticipantEntry> results = resultsList.getEntriesAsList();
+            results.sort((t1, t2) -> {
+                if (t1.getScore() == t2.getScore()) {
+                    return t1.getId() - t2.getId();
+                } else if (t1.getScore() < t2.getScore()) {
+                    return 1;
+                }
+                return -1;
+            });
+
+            future.complete(results);
+        return future;
+    }
 
     public void start() throws InterruptedException, IOException {
         System.out.println("Server started. Waiting for clients...");
@@ -40,22 +58,21 @@ public class Server {
         while (true && countryCount<5) {
             try {
                 countryCount++;
-                Socket clientSocket = serverSocket.accept();
-                threadPool.execute(new ClientHandler(clientSocket,queue));
+                Socket clientSocket = serverSocket.accept();;
+                threadPool.execute(new ClientHandler(clientSocket,queue,this));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         threadPool.shutdown();
         System.out.println("Server not accepting other connections");
-        var success = threadPool.awaitTermination(5, TimeUnit.MINUTES);
-
+        success = threadPool.awaitTermination(1, TimeUnit.MINUTES);
+        System.out.println("s-a terminat threadPool");
         queue.stopProducers();
-
+        System.out.println("s-au oprit producerii");
         for (int i = 0; i < consumerThreadsNo; i++) {
             threads[i].join();
         }
-
         if (success) {
             List<ParticipantEntry> results = resultsList.getEntriesAsList();
             results.sort((t1, t2) -> {
