@@ -50,18 +50,23 @@ public class Client {
 
                 fileReader.close();
             }
-            System.out.println("Clientul "+this.clientNumber+" a cerut clasamentul final");
+            out.println("Clasament pe tari");
+            String[] clasamentTari = new String[1000];
+            Integer lineNumberTari = 0;
+            while((line=in.readLine()) !=null) {
+                if(line.equals("END")) break;
+                clasamentTari[lineNumberTari]=line;
+                lineNumberTari++;
+            }
+
             out.println("Clasament final");
             String[] clasament = new String[1000];
             Integer lineNumber = 0;
-            System.out.println("Clientul "+this.clientNumber+" citeste clasamentul final");
             while((line=in.readLine()) !=null) {
                 if(line.equals("END")) break;
                 clasament[lineNumber]=line;
                 lineNumber++;
             }
-            System.out.println(lineNumber);
-            System.out.println("Clientul "+this.clientNumber+" a primit "+lineNumber+" participanti");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
